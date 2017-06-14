@@ -44,16 +44,35 @@ if (interactive()) {
     observeEvent(input$word2Click, {
       word2Label <- threeWords[2]
       
-      # This will change the value of input$inText, based on word1 Action Button
+      # This will change the value of input$inText, based on word3 Action Button
       updateTextAreaInput(session, "inText", value = paste(input$inText, word2Label))
     })
     
-    # Observe Button 1 Click
+    # Observe Button 3 Click
     observeEvent(input$word3Click, {
       word3Label <- threeWords[3]
       
-      # This will change the value of input$inText, based on word1 Action Button
+      # This will change the value of input$inText, based on word3 Action Button
       updateTextAreaInput(session, "inText", value = paste(input$inText, word3Label))
+    })
+    
+    #Observe Text Area
+    observeEvent(input$inText, {
+      inputText <- input$inText
+      
+      
+      if(inputText != ""){
+        #Get Vector of Words 
+        words <- unlist(strsplit(inputText, " "))
+        
+        #Last word 
+        lastWord <- words[length(words)]
+        
+        
+        updateActionButton(session = session, inputId = "word2Click", label = lastWord)
+        threeWords[2] <- lastWord 
+      }
+      
     })
   }
   
