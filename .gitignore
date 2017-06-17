@@ -1,0 +1,4 @@
+sparkWordCount/.idea/*
+sparkWordCount/.idea/libraries/*
+sparkWordCount/project/*
+sparkWordCount/target/*
