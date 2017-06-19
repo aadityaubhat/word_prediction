@@ -12,40 +12,44 @@ object wordCount {
     val inputFile = args(0)
     val outputLocation = args(1)
 
-    //val conf = new SparkConf().setAppName("wordCount")
-    //val sc = new SparkContext(conf)
-
-    val conf = new SparkConf().setMaster("local[*]").setAppName("Simple Application")
+    // Setting up Spark Cluster
+    val conf = new SparkConf().setMaster("local[*]").setAppName("Simple Application").set("spark.executor.memory", "6g")
     val sc = new SparkContext(conf)
 
-
+    // Reading input
     val input = sc.textFile(inputFile)
-    val words = input.flatMap(_.split(" "))
-    val counts = words.map(word => (word, 1)).reduceByKey(_+_)
 
-    counts.saveAsTextFile(outputLocation + "/counts")
+    // Counting Frequency Count
+    // Splitting input on space, to separate words
+    input.flatMap(_.split(" "))
+
+      // Converting words to tuple of word and 1
+      .map(word => (word, 1))
+
+      // Reducing the list by keys, adding up the counters
+      .reduceByKey(_+_)
+
+      // Converting a tuple into a comma separated string
+      .map(x => x._1 + "," + x._2)
+
+      // Saving the output as a text file
+      .saveAsTextFile(outputLocation + "/counts")
 
 
-
+    // Computing Bigrams
     input.map{
-
-      substrings => substrings.split(' ').sliding(2).toArray.map{_.mkString(" ")}.groupBy{identity}.mapValues{_.size}}.
-
-//
-//      // Split each line into substrings by periods
-//      _.split('.').map{ substrings => substrings.split(' ').sliding(2)
-//
-//      }.
-//
-//        // Flatten, and map the bigrams to concatenated strings
-//        flatMap{identity}.map{_.mkString(" ")}.
-//
-//        // Group the bigrams and count their frequency
-//        groupBy{identity}.mapValues{_.size}
-//
-//    }.
+      substrings => substrings.split(' ').sliding(2).toArray.map{_.mkString(" ")}.groupBy{identity}.mapValues{_.size}
+    }.
 
       // Reduce to get a global count, then collect
-      flatMap{identity}.reduceByKey(_+_).saveAsTextFile(outputLocation + "/bigrams")
+      flatMap{identity}.reduceByKey(_+_).map(x => x._1 + "," + x._2).saveAsTextFile(outputLocation + "/bigrams")
+
+    // Computing Trigrams
+    input.map{
+      substrings => substrings.split(' ').sliding(3).toArray.map{_.mkString(" ")}.groupBy{identity}.mapValues{_.size}
+    }.
+
+      // Reduce to get a global count, then collect
+      flatMap{identity}.reduceByKey(_+_).map(x => x._1 + "," + x._2).saveAsTextFile(outputLocation + "/trigrams")
   }
 }
