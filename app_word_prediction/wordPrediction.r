@@ -5,81 +5,87 @@ library(dplyr)
 library(data.table)
 
 
-# Load word frequencies ####
+# # Load word frequencies ####
+# 
+# wordFreqFiles <- list.files("~/Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/counts/")
+# 
+# wordFreqFiles <- wordFreqFiles[grep("part*", wordFreqFiles)]
+# 
+# wordFreqFiles <- paste0("~/Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/counts/", wordFreqFiles)
+# 
+# lst <- lapply(wordFreqFiles, fread)
+# wordFreq <- rbindlist(lst)
+# names(wordFreq) <- c("word", "count")
+# 
+# 
+# 
+# # Load Bigrams ####
+# 
+# bigramFiles <- list.files("~/Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/bigrams/")
+# 
+# bigramFiles <- bigramFiles[grep("part*", bigramFiles)]
+# 
+# bigramFiles <- paste0("~/Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/bigrams/",
+#                       bigramFiles)
+# 
+# lst <- lapply(bigramFiles, fread)
+# bigrams <- rbindlist(lst)
+# names(bigrams) <- c("bigram", "count")
+# 
+# 
+# 
+# 
+# # Load Trigrams ####
+# 
+# trigramFiles <- list.files("~/Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/trigrams/")
+# 
+# trigramFiles <- trigramFiles[grep("part*", trigramFiles)]
+# 
+# trigramFiles <- paste0("~/Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/trigrams/", trigramFiles)
+# 
+# lst <- lapply(trigramFiles, fread)
+# trigrams <- rbindlist(lst)
+# names(trigrams) <- c("trigram", "count")
+# 
+# 
+# 
+# 
+# # Data Cleanning and Processing ####
+# # Filter wordFreq, bigrams and trigrams
+# 
+# 
+# # bigrams
+# bigrams <- data.table(bigrams)
+# 
+# nrow(bigrams)
+# # 6360154
+# 
+# bigrams <- bigrams %>% filter(count > 15)
+# 
+# nrow(bigrams)
+# # 630075
+# 
+# hist(log(bigrams$count))
+# 
+# # trigrams
+# trigrams <- data.table(trigrams)
+# 
+# nrow(trigrams)
+# # 19381011
+# 
+# trigrams <- trigrams %>% filter(count > 15)
+# 
+# nrow(trigrams)
+# # 709065
+# 
+# hist(log(trigrams$count))
+# 
+# save(trigrams, file ="~/Documents/rWorkspace/word_prediction/app_word_prediction/trigrams.rda")
+# save(bigrams, file = "~/Documents/rWorkspace/word_prediction/app_word_prediction/bigrams.rda")
 
-wordFreqFiles <- list.files("Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/counts/")
-
-wordFreqFiles <- wordFreqFiles[grep("part*", wordFreqFiles)]
-
-wordFreqFiles <- paste0("Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/counts/", wordFreqFiles)
-
-lst <- lapply(wordFreqFiles, fread)
-wordFreq <- rbindlist(lst)
-names(wordFreq) <- c("word", "count")
-
-
-
-# Load Bigrams ####
-
-bigramFiles <- list.files("Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/bigrams/")
-
-bigramFiles <- bigramFiles[grep("part*", bigramFiles)]
-
-bigramFiles <- paste0("Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/bigrams/",
-                      bigramFiles)
-
-lst <- lapply(bigramFiles, fread)
-bigrams <- rbindlist(lst)
-names(bigrams) <- c("bigram", "count")
-
-
-
-
-# Load Trigrams ####
-
-trigramFiles <- list.files("Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/trigrams/")
-
-trigramFiles <- trigramFiles[grep("part*", trigramFiles)]
-
-trigramFiles <- paste0("Documents/rWorkspace/word_prediction/sparkWordCount/outputFiles/output/trigrams/", trigramFiles)
-
-lst <- lapply(trigramFiles, fread)
-trigrams <- rbindlist(lst)
-names(trigrams) <- c("trigram", "count")
-
-
-
-
-# Data Cleanning and Processing ####
-# Filter wordFreq, bigrams and trigrams 
-
-
-# bigrams
-bigrams <- data.table(bigrams)
-
-nrow(bigrams)
-# 6360154
-
-bigrams <- bigrams %>% filter(count > 15)
-
-nrow(bigrams)
-# 630075
-
-hist(log(bigrams$count))
-
-# trigrams
-trigrams <- data.table(trigrams)
-
-nrow(trigrams)
-# 19381011
-
-trigrams <- trigrams %>% filter(count > 15)
-
-nrow(trigrams)
-# 709065
-
-hist(log(trigrams$count))
-
+# Load Processed Data
+load("~/Documents/rWorkspace/word_prediction/app_word_prediction/trigrams.rda")
+load("~/Documents/rWorkspace/word_prediction/app_word_prediction/bigrams.rda")
 
 # Naive prediction ####
 
@@ -106,6 +112,8 @@ predictNext <- function(phrase){
   
   result <- unique(result[!is.na(result)])
 
+  result[is.na(result)] <- ""
+  
   return(result[1:3])
 }
 
