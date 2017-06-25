@@ -80,12 +80,12 @@ library(data.table)
 # 
 # hist(log(trigrams$count))
 # 
-# save(trigrams, file ="~/Documents/rWorkspace/word_prediction/app_word_prediction/trigrams.rda")
-# save(bigrams, file = "~/Documents/rWorkspace/word_prediction/app_word_prediction/bigrams.rda")
+# save(trigrams, file ="trigrams.rda")
+# save(bigrams, file = "bigrams.rda")
 
 # Load Processed Data
-load("~/Documents/rWorkspace/word_prediction/app_word_prediction/trigrams.rda")
-load("~/Documents/rWorkspace/word_prediction/app_word_prediction/bigrams.rda")
+load("trigrams.rda")
+load("bigrams.rda")
 
 # Naive prediction ####
 
@@ -111,6 +111,8 @@ predictNext <- function(phrase){
   result <- c(trigramResult, bigramResult)
   
   result <- unique(result[!is.na(result)])
+  
+  result <- result[1:3]
 
   result[is.na(result)] <- ""
   
