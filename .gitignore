@@ -2,3 +2,6 @@ sparkWordCount/.idea/*
 sparkWordCount/.idea/libraries/*
 sparkWordCount/project/*
 sparkWordCount/target/*
+sparkWordCount/outputFiles/*/*
+sparkWordCount/.idea/*/*
+clean_data/*
