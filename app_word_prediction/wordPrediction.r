@@ -58,12 +58,12 @@ library(data.table)
 # bigrams <- data.table(bigrams)
 # 
 # nrow(bigrams)
-# # 6360154
+# # 18400306
 # 
 # bigrams <- bigrams %>% filter(count > 15)
 # 
 # nrow(bigrams)
-# # 630075
+# # 518022
 # 
 # hist(log(bigrams$count))
 # 
@@ -71,19 +71,21 @@ library(data.table)
 # trigrams <- data.table(trigrams)
 # 
 # nrow(trigrams)
-# # 19381011
+# # 54104697
 # 
 # trigrams <- trigrams %>% filter(count > 15)
 # 
 # nrow(trigrams)
-# # 709065
+# # 438143
 # 
 # hist(log(trigrams$count))
 # 
 # save(trigrams, file ="trigrams.rda")
 # save(bigrams, file = "bigrams.rda")
+# save(wordFreq, file ="wordFreq.rda")
 
 # Load Processed Data
+load("wordFreq.rda")
 load("trigrams.rda")
 load("bigrams.rda")
 
@@ -91,6 +93,7 @@ load("bigrams.rda")
 
 trigrams <- data.table(trigrams %>% arrange(desc(count)))
 bigrams <- data.table(bigrams %>% arrange(desc(count)))
+wordFreq <- data.table(wordFreq %>% arrange(desc(count)))
 
 predictNext <- function(phrase){
   phrase <- tolower(phrase)
@@ -118,6 +121,35 @@ predictNext <- function(phrase){
   
   return(result[1:3])
 }
+
+
+## Function to predict the current word
+##
+predictThis <- function(phrase){
+  phrase <- tolower(phrase)
+  phrase <- "are you"
+  words <- unlist(strsplit(phrase, " "))
+  
+  # When phrase has two or more words
+  lastThreeWords <- words[(length(words)-2):length(words)]
+  
+  # If there are 3 or more words in the phrase 
+  trigramResult <- ifelse(length(words) >= 3,
+                          trigrams[grepl(paste0("^",paste(lastThreeWords, collapse = " " ), ".*"), trigrams$trigram),][1:3,]$trigram,
+                          c(NA, NA, NA, NA, NA, NA, NA, NA, NA))
+                          
+  trigramResult <- unlist(strsplit(trigramResult, " ", fixed = ))[c(3,6,9)]
+  
+  # If there are 2 or more words in the phrase 
+  bigramResult <- ifelse(length(words) >= 2,
+                         bigrams[grepl(paste0("^",paste(lastThreeWords[(length(lastThreeWords)-1):length(lastThreeWords)], collapse = " "), ".*"), bigrams$bigram),][1:3,]$bigram,
+                         c(NA, NA, NA, NA, NA, NA))
+  
+  bigramResult <- unlist(strsplit(bigramResult, " ", fixed = ))[c(2,4,6)]
+  
+  singleWordResult <- wordFreq[grepl(paste0("^",lastThreeWords[length(lastThreeWords)], ".*"), wordFreq$word),][1:3,]$word
+}
+
 
 # Testing ####
 predictNext("")
