@@ -53,15 +53,25 @@ library(data.table)
 # # Data Cleanning and Processing ####
 # # Filter wordFreq, bigrams and trigrams
 # 
+# # wordFreq
+# wordFreq <- data.table(wordFreq)
+# nrow(wordFreq)
+# # 1162933
+# 
+# wordFreq <- wordFreq %>% group_by(word) %>% summarise(count = sum(count))
+# nrow(wordFreq)
+# # 886870
 # 
 # # bigrams
 # bigrams <- data.table(bigrams)
+# nrow(bigrams)
+# # 18400306
 # 
+# bigrams <- bigrams %>% group_by(bigram) %>% summarise(count = sum(count))
 # nrow(bigrams)
 # # 18400306
 # 
 # bigrams <- bigrams %>% filter(count > 15)
-# 
 # nrow(bigrams)
 # # 518022
 # 
@@ -69,14 +79,15 @@ library(data.table)
 # 
 # # trigrams
 # trigrams <- data.table(trigrams)
+# trigrams <- trigrams %>% group_by(trigram) %>% summarise(count = sum(count))
 # 
 # nrow(trigrams)
-# # 54104697
+# # 48406024
 # 
 # trigrams <- trigrams %>% filter(count > 15)
 # 
 # nrow(trigrams)
-# # 438143
+# # 477478
 # 
 # hist(log(trigrams$count))
 # 
@@ -127,27 +138,42 @@ predictNext <- function(phrase){
 ##
 predictThis <- function(phrase){
   phrase <- tolower(phrase)
-  phrase <- "are you"
   words <- unlist(strsplit(phrase, " "))
   
   # When phrase has two or more words
-  lastThreeWords <- words[(length(words)-2):length(words)]
+  lastThreeWords <- words[(length(words)- ifelse(length(words) >=2, 2, 1)):length(words)]
   
   # If there are 3 or more words in the phrase 
-  trigramResult <- ifelse(length(words) >= 3,
-                          trigrams[grepl(paste0("^",paste(lastThreeWords, collapse = " " ), ".*"), trigrams$trigram),][1:3,]$trigram,
-                          c(NA, NA, NA, NA, NA, NA, NA, NA, NA))
+  if(length(words) >=3){
+    trigramResult <- trigrams[grepl(paste0("^",paste(lastThreeWords, collapse = " " ), ".*"), trigrams$trigram),][1:3,]$trigram
+  } else {
+    trigramResult <- c("", "", "", "", "", "", "", "", "")
+  }
+  
                           
   trigramResult <- unlist(strsplit(trigramResult, " ", fixed = ))[c(3,6,9)]
   
   # If there are 2 or more words in the phrase 
-  bigramResult <- ifelse(length(words) >= 2,
-                         bigrams[grepl(paste0("^",paste(lastThreeWords[(length(lastThreeWords)-1):length(lastThreeWords)], collapse = " "), ".*"), bigrams$bigram),][1:3,]$bigram,
-                         c(NA, NA, NA, NA, NA, NA))
+  if(length(words) >= 2){
+    bigramResult <- bigrams[grepl(paste0("^",paste(lastThreeWords[(length(lastThreeWords)-1):length(lastThreeWords)], collapse = " "), "*"), bigrams$bigram),][1:3,]$bigram
+  } else {
+    bigramResult <- c("", "", "", "", "", "")
+  }
   
   bigramResult <- unlist(strsplit(bigramResult, " ", fixed = ))[c(2,4,6)]
   
+  
   singleWordResult <- wordFreq[grepl(paste0("^",lastThreeWords[length(lastThreeWords)], ".*"), wordFreq$word),][1:3,]$word
+  
+  result <- c(trigramResult, bigramResult, singleWordResult)
+  
+  result <- unique(result[!is.na(result)])
+  
+  result <- result[1:3]
+  
+  result[is.na(result)] <- ""
+  
+  return(result[1:3])
 }
 
 
@@ -157,3 +183,9 @@ predictNext("")
 predictNext("How are")
 
 predictNext("Why not")
+
+predictThis("are you ma")
+
+predictThis("you ma")
+
+predictThis("ma")
