@@ -33,24 +33,62 @@ server <- function(input, output, session) {
   observeEvent(input$word1Click, {
     word1 <- threeWords$currentValue[1]
     
-    # This will change the value of input$inText, based on word1 Action Button
-    updateTextAreaInput(session, "inText", value = paste0(input$inText, word1," "))
+    lastChar <- nchar(input$inText)
+    
+    # If last character in textinput is a space, add word after the t
+    if(substr(input$inText, lastChar, lastChar) == " "){
+      # This will change the value of input$inText, based on word1 Action Button
+      updateTextAreaInput(session, "inText", value = paste0(input$inText, word1," "))
+    } else {
+      # Else replace the last word with 
+      currentWords <- unlist(strsplit(input$inText, " "))
+      
+      inputText <- paste(currentWords[0:(length(currentWords) - 1)], collapse = " ")
+      
+      updateTextAreaInput(session, "inText", value = paste0(inputText, ifelse(inputText =="",""," "), word1," "))
+    }
+    
+
   })
   
   # Observe Button 2 Click
   observeEvent(input$word2Click, {
     word2 <- threeWords$currentValue[2]
     
-    # This will change the value of input$inText, based on word3 Action Button
-    updateTextAreaInput(session, "inText", value = paste0(input$inText, word2, " "))
+    lastChar <- nchar(input$inText)
+    
+    # If last character in textinput is a space, add word after the t
+    if(substr(input$inText, lastChar, lastChar) == " "){
+      # This will change the value of input$inText, based on word2 Action Button
+      updateTextAreaInput(session, "inText", value = paste0(input$inText, word2," "))
+    } else {
+      # Else replace the last word with 
+      currentWords <- unlist(strsplit(input$inText, " "))
+      
+      inputText <- paste(currentWords[0:(length(currentWords) - 1)], collapse = " ")
+      
+      updateTextAreaInput(session, "inText", value = paste0(inputText, ifelse(inputText =="",""," "), word2," "))
+    }
   })
   
   # Observe Button 3 Click
   observeEvent(input$word3Click, {
     word3 <- threeWords$currentValue[3]
     
-    # This will change the value of input$inText, based on word3 Action Button
-    updateTextAreaInput(session, "inText", value = paste0(input$inText, word3, " "))
+    lastChar <- nchar(input$inText)
+    
+    # If last character in textinput is a space, add word after the t
+    if(substr(input$inText, lastChar, lastChar) == " "){
+      # This will change the value of input$inText, based on word3 Action Button
+      updateTextAreaInput(session, "inText", value = paste0(input$inText, word3," "))
+    } else {
+      # Else replace the last word with 
+      currentWords <- unlist(strsplit(input$inText, " "))
+      
+      inputText <- paste(currentWords[0:(length(currentWords) - 1)], collapse = " ")
+      
+      updateTextAreaInput(session, "inText", value = paste0(inputText, ifelse(inputText =="",""," "), word3," "))
+    }
   })
   
   #Observe Text Area
@@ -70,6 +108,10 @@ server <- function(input, output, session) {
       if(substr(inputText, lastChar, lastChar) == " "){
         print(inputText)
         threeWords$currentValue <- predictNext(inputText)
+        print(threeWords$currentValue)
+      } else {
+        print(inputText)
+        threeWords$currentValue <- predictThis(inputText)
         print(threeWords$currentValue)
       }
       
